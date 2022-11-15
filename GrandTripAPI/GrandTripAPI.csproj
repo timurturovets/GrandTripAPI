@@ -8,4 +8,19 @@
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.17" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Update="Controllers\AddRouteRequest.cs">
+        <DependentUpon>RouteController.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Controllers\GetRouteRequest.cs">
+        <DependentUpon>RouteController.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Controllers\UpdateRouteRequest.cs">
+        <DependentUpon>RouteController.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Controllers\RouteUpdateData.cs">
+        <DependentUpon>UpdateRouteRequest.cs</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
 </Project>
