@@ -30,6 +30,11 @@ namespace GrandTripAPI.Data
             
             builder.Entity<RouteSeason>()
                 .HasData(new RouteSeason { Name = "Все сезоны" });
+
+            builder.Entity<User>()
+                .HasMany(u => u.Routes)
+                .WithOne(r => r.Creator)
+                .IsRequired();
         }
         
         public AppDbContext()
@@ -39,7 +44,10 @@ namespace GrandTripAPI.Data
         }
 
         public DbSet<Route> Routes { get; set; }
+        public DbSet<Dot> Dots { get; set; }
+        public DbSet<Line> Lines { get; set; }
         public DbSet<RouteTheme> Themes { get; set; }
         public DbSet<RouteSeason> Seasons { get; set; }
+        public DbSet<User> Users { get; set; }
     }
 }

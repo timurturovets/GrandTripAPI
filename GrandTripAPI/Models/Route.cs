@@ -1,7 +1,6 @@
-﻿using System.Linq;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+
 using GrandTripAPI.Controllers;
-using GrandTripAPI.Models.JSON;
 
 namespace GrandTripAPI.Models
 {
@@ -14,12 +13,14 @@ namespace GrandTripAPI.Models
         public IEnumerable<Line> Lines { get; set; }
         public RouteTheme Theme { get; set; }
         public RouteSeason Season { get; set; }
-        
+        public User Creator { get; set; }
+
         #region Methods
 
         public static Route NewRoute(string name, string description,
-            List<Dot> dots, List<Line> lines, 
-            RouteTheme theme, RouteSeason season)
+            IEnumerable<Dot> dots, IEnumerable<Line> lines, 
+            RouteTheme theme, RouteSeason season,
+            User creator)
         {
             return new Route
             {
@@ -28,17 +29,21 @@ namespace GrandTripAPI.Models
                 Dots = dots,
                 Lines = lines,
                 Theme = theme,
-                Season = season
+                Season = season,
+                Creator = creator
             };
         }
 
-        public void Update(UpdateRouteRequest data)
+        public void Update(RouteUpdateData data)
         {
             RouteName = data.Name;
             Description = data.Description;
-            Dots = data.Dots.Select(d => d.ToDomain());
-            Lines = data.Lines.Select(l => l.ToDomain());
+            Dots = data.Dots;
+            Lines = data.Lines;
+            Theme = data.Theme;
+            Season = data.Season;
         }
+        
         #endregion
     }
 }

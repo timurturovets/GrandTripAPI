@@ -5,7 +5,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.17" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.17" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.17" />
+      <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.6.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -20,6 +23,27 @@
       </Compile>
       <Compile Update="Controllers\RouteUpdateData.cs">
         <DependentUpon>UpdateRouteRequest.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Data\Repositories\JwtService.cs">
+        <DependentUpon>UserRepository.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Models\RouteTheme.cs">
+        <DependentUpon>Route.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Models\RouteSeason.cs">
+        <DependentUpon>Route.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Models\Dot.cs">
+        <DependentUpon>Route.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Models\Line.cs">
+        <DependentUpon>Route.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Controllers\RegisterRequest.cs">
+        <DependentUpon>UsersController.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Controllers\LoginRequest.cs">
+        <DependentUpon>UsersController.cs</DependentUpon>
       </Compile>
     </ItemGroup>
 

@@ -11,9 +11,11 @@ namespace GrandTripAPI.Controllers
     public class RouteController : ControllerBase
     {
         private readonly RouteRepository _routeRepo;
-        public RouteController(RouteRepository repo)
+        private readonly UserRepository _userRepo;
+        public RouteController(RouteRepository routeRepo, UserRepository userRepo)
         {
-            _routeRepo = repo;
+            _routeRepo = routeRepo;
+            _userRepo = userRepo;
         }
         public async Task<IActionResult> AddRoute(AddRouteRequest data)
         {
@@ -44,12 +46,16 @@ namespace GrandTripAPI.Controllers
                 LineId = l.Id,
                 LatLngs = l.LatLngs
             }).ToList();
+
+            var user = await _userRepo.GetBy(u => u.Id == HttpContext.GetId());
+            if (user is null) return Forbid();
             
             var route = Route.NewRoute(
                 data.RouteName, 
                 data.Description, 
                 dots, lines, 
-                theme, season);
+                theme, season,
+                user);
 
             var id = await _routeRepo.AddRoute(route);
             return Ok(id);
@@ -57,9 +63,10 @@ namespace GrandTripAPI.Controllers
 
         public async Task<IActionResult> GetRoute(GetRouteRequest filters)
         {
-            var route = await _routeRepo.GetBy(r =>
+            var route = await _routeRepo.GetByWith(r =>
                 r.Theme.Name == filters.Theme &&
-                r.Season.Name == filters.Season);
+                r.Season.Name == filters.Season, 
+                r=>r.Theme, r=>r.Season);
             if (route is null) return NotFound();
             return Ok(new {route});
         }
@@ -69,9 +76,28 @@ namespace GrandTripAPI.Controllers
             var route = await _routeRepo.GetBy(r => r.RouteId == data.Id);
             if (route is null) return NotFound();
 
-            route.Update(data);
+            var updateData = new RouteUpdateData
+            {
+                Name = data.Name,
+                Description = data.Description,
+                Dots = data.Dots.Select(d => d.ToDomain()),
+                Lines = data.Lines.Select(l => l.ToDomain()),
+                Theme = await _routeRepo.GetTheme(data.Theme),
+                Season = await _routeRepo.GetSeason(data.Season)
+            };
+            
+            route.Update(updateData);
             _routeRepo.UpdateRoute(route);
             
+            return Ok();
+        }
+
+        public async Task<IActionResult> DeleteRoute([FromQuery] int id)
+        {
+            var route = await _routeRepo.GetBy(r => r.RouteId == id);
+            if (route is null) return NotFound();
+
+            _routeRepo.DeleteRoute(route);
             return Ok();
         }
     }
