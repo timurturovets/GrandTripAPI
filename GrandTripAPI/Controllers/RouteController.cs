@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 
 using GrandTripAPI.Data.Repositories;
 using GrandTripAPI.Models;

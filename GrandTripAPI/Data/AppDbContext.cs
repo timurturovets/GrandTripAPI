@@ -35,7 +35,7 @@ namespace GrandTripAPI.Data
                 .WithMany(r => r.Preferers);
         }
         
-        public AppDbContext()
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
             //ReSharper disable VirtualMemberCallInConstructor
             Database.EnsureCreated();
