@@ -14,6 +14,7 @@ namespace GrandTripAPI.Models
         public RouteTheme Theme { get; set; }
         public RouteSeason Season { get; set; }
         public User Creator { get; set; }
+        public IEnumerable<User> Preferers { get; set; }
 
         #region Methods
 

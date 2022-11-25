@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Linq;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using GrandTripAPI.Data;
 using GrandTripAPI.Models;
 using Microsoft.EntityFrameworkCore;
 

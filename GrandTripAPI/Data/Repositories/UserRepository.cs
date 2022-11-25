@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 using GrandTripAPI.Models;
 
+#nullable enable
 namespace GrandTripAPI.Data.Repositories
 {
     public class UserRepository
@@ -18,15 +19,21 @@ namespace GrandTripAPI.Data.Repositories
             _jwtService = service;
         }
 
-        public async Task<User> GetBy(Expression<Func<User, bool>> predicate)
+        public async Task<User?> GetBy(Expression<Func<User, bool>> predicate)
         {
             return await _ctx.Users.FirstOrDefaultAsync(predicate);
         }
-        public async Task<string> Register(string username, string password)
+
+        public async Task<int> AddUser(string username, string password)
         {
             var user = User.CreateNew(username, password);
             await _ctx.AddAsync(user);
-            return _jwtService.GenerateToken(user.Id);
+            return user.Id;
+        }
+
+        public string GenerateToken(int id)
+        {
+            return _jwtService.GenerateToken(id);
         }
     }
 }

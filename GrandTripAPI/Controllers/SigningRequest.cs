@@ -2,7 +2,7 @@
 
 namespace GrandTripAPI.Controllers
 {
-    public class LoginRequest
+    public class SigningRequest
     {
         [Required(ErrorMessage = "Вы не ввели логин.")]
         public string Username { get; set; }

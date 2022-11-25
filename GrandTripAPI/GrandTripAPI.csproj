@@ -39,10 +39,7 @@
       <Compile Update="Models\Line.cs">
         <DependentUpon>Route.cs</DependentUpon>
       </Compile>
-      <Compile Update="Controllers\RegisterRequest.cs">
-        <DependentUpon>UsersController.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Controllers\LoginRequest.cs">
+      <Compile Update="Controllers\SigningRequest.cs">
         <DependentUpon>UsersController.cs</DependentUpon>
       </Compile>
     </ItemGroup>

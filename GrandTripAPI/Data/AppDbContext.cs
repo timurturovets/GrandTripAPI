@@ -1,8 +1,7 @@
-﻿using System;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
+using Newtonsoft.Json;
 using GrandTripAPI.Models;
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
@@ -12,15 +11,10 @@ namespace GrandTripAPI.Data
     {
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            var converter = new ValueConverter<double[], string>(
-                arr=>"["+string.Join(",", arr)+"]",
-                str=>str
-                    .TrimStart('[')
-                    .TrimEnd(']')
-                    .Split(",", StringSplitOptions.RemoveEmptyEntries)
-                    .Select(double.Parse)
-                    .ToArray());
-            
+            var converter = new ValueConverter<double[][], string>(
+                arr => JsonConvert.SerializeObject(arr),
+                str => JsonConvert.DeserializeObject<double[][]>(str));
+
             builder.Entity<Line>()
                 .Property(l => l.LatLngs)
                 .HasConversion(converter);
@@ -32,9 +26,13 @@ namespace GrandTripAPI.Data
                 .HasData(new RouteSeason { Name = "Все сезоны" });
 
             builder.Entity<User>()
-                .HasMany(u => u.Routes)
+                .HasMany(u => u.CreatedRoutes)
                 .WithOne(r => r.Creator)
                 .IsRequired();
+
+            builder.Entity<User>()
+                .HasMany(u => u.FavouriteRoutes)
+                .WithMany(r => r.Preferers);
         }
         
         public AppDbContext()
