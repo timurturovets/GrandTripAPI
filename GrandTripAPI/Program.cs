@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace GrandTripAPI
 {
@@ -32,6 +33,9 @@ namespace GrandTripAPI
             
             return service.RetrieveId(token);
         }
-        #nullable disable
+
+        public static ILogger<T> L<T>(this HttpContext context)
+            => context.RequestServices.GetRequiredService<ILogger<T>>();
+#nullable disable
     }
 }

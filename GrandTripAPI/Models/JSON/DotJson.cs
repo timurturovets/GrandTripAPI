@@ -2,17 +2,17 @@
 {
     public class DotJson
     {
-        public int Id { get; set; }
-        public string Name {get;set;}
-        public string Description {get;set;}
-        public double PositionX {get;set;}
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public double PositionX { get; set; }
         public double PositionY { get; set; }
 
         public Dot ToDomain()
         {
             return new Dot
             {
-                DotId = Id,
+                DotId = int.TryParse(Id, out var result) ? result : -2,
                 DotName = Name,
                 DotDescription = Description,
                 PositionX = PositionX,

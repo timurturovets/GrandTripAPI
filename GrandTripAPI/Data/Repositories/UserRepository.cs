@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -24,10 +25,20 @@ namespace GrandTripAPI.Data.Repositories
             return await _ctx.Users.FirstOrDefaultAsync(predicate);
         }
 
+        public async Task<User?> GetByWith(Expression<Func<User, bool>> predicate,
+            params Expression<Func<User, object>>[] navigations)
+        {
+            return await navigations
+                    .Aggregate(_ctx.Users.Where(predicate),
+                        (current, navigation)
+                            => current.Include(navigation))
+                    .FirstOrDefaultAsync();
+        }
         public async Task<int> AddUser(string username, string password)
         {
             var user = User.CreateNew(username, password);
             await _ctx.AddAsync(user);
+            await _ctx.SaveChangesAsync();
             return user.Id;
         }
 

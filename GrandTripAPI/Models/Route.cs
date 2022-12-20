@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
-
+using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using GrandTripAPI.Controllers;
+using GrandTripAPI.Models.JSON;
 
 namespace GrandTripAPI.Models
 {
@@ -9,12 +11,12 @@ namespace GrandTripAPI.Models
         public int RouteId { get; set; }
         public string RouteName { get; set; }
         public string Description { get; set; }
-        public IEnumerable<Dot> Dots { get; set; }
-        public IEnumerable<Line> Lines { get; set; }
+        public IEnumerable<Dot> Dots { get; set; } = new List<Dot>();
+        public IEnumerable<Line> Lines { get; set; } = new List<Line>();
         public RouteTheme Theme { get; set; }
         public RouteSeason Season { get; set; }
         public User Creator { get; set; }
-        public IEnumerable<User> Preferers { get; set; }
+        //public IEnumerable<User> Preferers { get; set; }
 
         #region Methods
 
@@ -44,7 +46,21 @@ namespace GrandTripAPI.Models
             Theme = data.Theme;
             Season = data.Season;
         }
-        
+
+        public RouteJson ToJson()
+        {
+            return new RouteJson
+            {
+                Id = RouteId,
+                Name = RouteName,
+                Description = Description,
+                Theme = Theme?.Name ?? "Без тематики",
+                Season = Season?.Name ?? "Все сезоны",
+                Dots = Dots.Select(d => d.ToJson()).ToList(),
+                Lines = Lines.Select(l=>l.ToJson()).ToList(),
+                Author = Creator.Username
+            };
+        }
         #endregion
     }
 }

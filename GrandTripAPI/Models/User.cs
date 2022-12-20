@@ -13,9 +13,8 @@ namespace GrandTripAPI.Models
         public byte[] Salt { get; set; }
         public string Password { get; set; }
         public string Role { get; set; }
-
-        public IEnumerable<Route> CreatedRoutes { get; set; }
-        public IEnumerable<Route> FavouriteRoutes { get; set; }
+        public IEnumerable<Route> CreatedRoutes { get; set; } = new List<Route>();
+        //public IEnumerable<Route> FavouriteRoutes { get; set; }
 
         #region Methods
 
@@ -34,8 +33,7 @@ namespace GrandTripAPI.Models
                 Password = hashedPassword,
                 Role = "Default",
                 CreatedRoutes = new List<Route>(),
-                FavouriteRoutes = new List<Route>()
-               
+                //FavouriteRoutes = new List<Route>()
             };
         }
 
@@ -44,8 +42,8 @@ namespace GrandTripAPI.Models
             int[] Projecter(IEnumerable<Route> routes) => routes.Select(r => r.RouteId).ToArray();
 
             return new UserInfo(Id, Username, Role, 
-                Projecter(CreatedRoutes), 
-                Projecter(FavouriteRoutes)
+                Projecter(CreatedRoutes)
+                //,Projecter(FavouriteRoutes)
             );
         }
 
@@ -61,5 +59,5 @@ namespace GrandTripAPI.Models
     }
 
     public record UserInfo(int Id, string Username, string Role,
-        int[] CreatedRoutesIds, int[] FavouriteRoutesIds);
+        int[] CreatedRoutesIds); //, int[] FavouriteRoutesIds);
 }

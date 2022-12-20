@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -21,6 +22,35 @@ namespace GrandTripAPI.Data.Repositories
             return await _ctx.Routes.FirstOrDefaultAsync(predicate);
         }
 
+        public async Task<List<Route?>> GetAll(string? theme = null, string? season = null)
+        {
+            var set = _ctx.Routes;
+
+            if (string.IsNullOrEmpty(theme) && string.IsNullOrEmpty(season)) return await set
+                    .Include(r => r.Dots)
+                    .Include(r => r.Lines)
+                    .ToListAsync();
+                
+            if (string.IsNullOrEmpty(theme)) return await set
+                .Where(r => r.Season.Key == season)
+                .Include(r => r.Dots)
+                .Include(r => r.Lines)
+                .ToListAsync();
+
+            if (string.IsNullOrEmpty(season))
+                return await set
+                    .Where(r => r.Theme.Key == theme)
+                    .Include(r => r.Dots)
+                    .Include(r => r.Lines)
+                    .ToListAsync();
+            
+            return await set
+                .Where(r => r.Theme.Key == theme && r.Season.Key == season)
+                .Include(r => r.Dots)
+                .Include(r => r.Lines)
+                .ToListAsync();
+        }
+        
         public async Task<Route?> GetByWith(Expression<Func<Route, bool>> predicate, 
             params Expression<Func<Route, object>>[] navigations)
         { 
@@ -28,36 +58,46 @@ namespace GrandTripAPI.Data.Repositories
                     (current, navigation) => current.Include(navigation))
                 .Where(predicate).FirstOrDefaultAsync();
         }
-        public async Task<RouteTheme?> GetTheme(string themeName)
+        public async Task<RouteTheme?> GetTheme(string themeName, bool includeRoutes = false)
         {
-            return await _ctx.Themes
-                .Where(t => t.Name == themeName)
-                .Include(t => t.Routes)
-                .FirstOrDefaultAsync();
+            return includeRoutes
+                ? await _ctx.Themes
+                    .Where(t => t.Key == themeName)
+                    .Include(t => t.Routes)
+                    .FirstOrDefaultAsync()
+                : await _ctx.Themes
+                    .Where(t => t.Key == themeName)
+                    .FirstOrDefaultAsync();
         }
-        public async Task<RouteSeason?> GetSeason(string seasonName)
+        public async Task<RouteSeason?> GetSeason(string seasonName, bool includeRoutes = false)
         {
-            return await _ctx.Seasons
-                .Where(s => s.Name == seasonName)
-                .Include(s => s.Routes)
-                .FirstOrDefaultAsync();
+            return includeRoutes
+                ? await _ctx.Seasons
+                    .Where(s => s.Key == seasonName)
+                    .Include(s => s.Routes)
+                    .FirstOrDefaultAsync()
+                : await _ctx.Seasons
+                    .Where(s => s.Key == seasonName)
+                    .FirstOrDefaultAsync();
         }
 
         public async Task<int> AddRoute(Route route)
         {
-            await _ctx.AddAsync(route);
+            await _ctx.Routes.AddAsync(route);
             await _ctx.SaveChangesAsync();
 
             return route.RouteId;
         }
 
-        public async void UpdateRoute(Route route)
+        public async Task UpdateRoute(Route route)
         {
-            _ctx.Update(route);
+            _ctx.Dots.RemoveRange(_ctx.Dots.Where(d=>d.RouteId == route.RouteId));
+            _ctx.Lines.RemoveRange(_ctx.Lines.Where(l=>l.RouteId == route.RouteId));
+            _ctx.Routes.Update(route);
             await _ctx.SaveChangesAsync();
         }
 
-        public async void DeleteRoute(Route route)
+        public async Task DeleteRoute(Route route)
         {
             _ctx.Routes.Remove(route);
             await _ctx.SaveChangesAsync();

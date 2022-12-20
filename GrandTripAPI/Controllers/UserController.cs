@@ -2,18 +2,21 @@
 using System.Threading.Tasks;
 
 using GrandTripAPI.Data.Repositories;
+using Microsoft.Extensions.Logging;
 
 namespace GrandTripAPI.Controllers
 {
-    public class UsersController : ControllerBase
+    [Route("api/[controller]")]
+    public class UserController : ControllerBase
     {
         private readonly UserRepository _userRepo;
 
-        public UsersController(UserRepository userRepo)
+        public UserController(UserRepository userRepo)
         {
             _userRepo = userRepo;
         }
 
+        [HttpPost("register")]
         public async Task<IActionResult> Register(SigningRequest data)
         {
             var exists = await _userRepo.GetBy(u => u.Username == data.Username) != null;
@@ -24,22 +27,34 @@ namespace GrandTripAPI.Controllers
             return Ok(new { token = _userRepo.GenerateToken(id) });
         }
 
+        [HttpPost("login")]
         public async Task<IActionResult> Login(SigningRequest data)
         {
-            if (!ModelState.IsValid) return BadRequest(new { data = ModelState } );
-            var user = await _userRepo.GetBy(u => u.Username == data.Username);
-            if (user == null) return NotFound();
+            var l = HttpContext.L<UserController>();
 
+            l.LogCritical($"req name: {data.Username}, pw: {data.Password}");
+            
+            var user = await _userRepo.GetBy(u => u.Username == data.Username);
+            
+            if (user == null) return NotFound();
+            if (!user.ValidatePassword(data.Password)) return BadRequest();
+            
             return Ok(new { token = _userRepo.GenerateToken(user.Id) });
         }
 
+        [HttpGet("info")]
         public async Task<IActionResult> GetUserInfo()
         {
             var id = HttpContext.GetId();
-            if (id is null) return BadRequest();
+            var l = HttpContext.L<UserController>();
+            l.LogCritical($"header: {HttpContext.Request.Headers["Authorization"]}");
+            if (id is null) return NotFound();
 
-            var user = await _userRepo.GetBy(u => u.Id == id);
-            if (user is null) return BadRequest();
+            var user = await _userRepo
+                .GetByWith(u => u.Id == id, 
+                    u => u.CreatedRoutes);
+            
+            if (user is null) return NotFound();
             
             return Ok(new {info = user.GetInfo()});
         }
