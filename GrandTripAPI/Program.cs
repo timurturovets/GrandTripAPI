@@ -18,24 +18,4 @@ namespace GrandTripAPI
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
     }
-
-    public static partial class Extensions
-    {
-        #nullable enable
-        public static int? GetId(this HttpContext context)
-        {
-            var header = context.Request.Headers["Authorization"].ToString().Split(" ");
-            
-            if (header.Length < 2) return null;
-
-            var token = header[1];
-            var service = context.RequestServices.GetRequiredService<JwtService>();
-            
-            return service.RetrieveId(token);
-        }
-
-        public static ILogger<T> L<T>(this HttpContext context)
-            => context.RequestServices.GetRequiredService<ILogger<T>>();
-#nullable disable
-    }
 }

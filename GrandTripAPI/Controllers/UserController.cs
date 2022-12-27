@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Linq;
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 using GrandTripAPI.Data.Repositories;
@@ -46,8 +47,6 @@ namespace GrandTripAPI.Controllers
         public async Task<IActionResult> GetUserInfo()
         {
             var id = HttpContext.GetId();
-            var l = HttpContext.L<UserController>();
-            l.LogCritical($"header: {HttpContext.Request.Headers["Authorization"]}");
             if (id is null) return NotFound();
 
             var user = await _userRepo
@@ -57,6 +56,19 @@ namespace GrandTripAPI.Controllers
             if (user is null) return NotFound();
             
             return Ok(new {info = user.GetInfo()});
+        }
+        
+        [HttpGet("getall")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var id = HttpContext.GetId();
+            if (id is null) return BadRequest();
+
+            var user = await _userRepo.GetBy(u => u.Id == id);
+            if (user is null || user.Role != "Admin") return BadRequest();
+
+            var users = (await _userRepo.GetAll(true)).Select(u=>u.GetInfo());
+            return Ok(new { users });
         }
     }
 }

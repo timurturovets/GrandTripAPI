@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using GrandTripAPI.Data.Repositories;
 using GrandTripAPI.Models;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace GrandTripAPI.Controllers
 {
@@ -89,10 +90,11 @@ namespace GrandTripAPI.Controllers
             if (route is null) return NotFound();
     
             var updateData = await request.ToData(_routeRepo);
-  
+            var l = HttpContext.L<RouteController>();
+            l.LogCritical($"Lines length: {updateData.Lines.Count}");
             route.Update(updateData);
             
-            await _routeRepo.UpdateRoute(route);
+            await _routeRepo.UpdateRoute(route, true);
             
             return Ok();
         }
@@ -105,6 +107,23 @@ namespace GrandTripAPI.Controllers
 
             await _routeRepo.DeleteRoute(route);
             return Ok();
+        }
+
+        [HttpGet("created")]
+        public async Task<IActionResult> GetCreatedRoutes([FromQuery] string ids)
+        {
+            var id = HttpContext.GetId();
+            if (id is null) return BadRequest();
+
+            var l = HttpContext.L<RouteController>();
+
+            var user = await _userRepo.GetBy(u=>u.Id== id);
+            if (user is null) return BadRequest();
+
+            var createdRoutesIds = JsonConvert.DeserializeObject<int[]>(ids);
+            var routes = await _routeRepo.GetByIds(createdRoutesIds);
+
+            return Ok(new { routes = routes.Select(r=>r.ToJson()).ToArray() });
         }
     }
 }

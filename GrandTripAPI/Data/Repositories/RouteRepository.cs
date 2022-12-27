@@ -89,10 +89,14 @@ namespace GrandTripAPI.Data.Repositories
             return route.RouteId;
         }
 
-        public async Task UpdateRoute(Route route)
+        public async Task UpdateRoute(Route route, bool replaceDotsAndLines = false)
         {
-            _ctx.Dots.RemoveRange(_ctx.Dots.Where(d=>d.RouteId == route.RouteId));
-            _ctx.Lines.RemoveRange(_ctx.Lines.Where(l=>l.RouteId == route.RouteId));
+            if (replaceDotsAndLines)
+            {
+                _ctx.Dots.RemoveRange(_ctx.Dots.Where(d => d.RouteId == route.RouteId));
+                _ctx.Lines.RemoveRange(_ctx.Lines.Where(l => l.RouteId == route.RouteId));
+            }
+
             _ctx.Routes.Update(route);
             await _ctx.SaveChangesAsync();
         }
@@ -101,6 +105,34 @@ namespace GrandTripAPI.Data.Repositories
         {
             _ctx.Routes.Remove(route);
             await _ctx.SaveChangesAsync();
+        }
+
+        public async Task<List<Route>> GetByIds(IEnumerable<int> ids)
+        {
+            List<Route> routes = new();
+            foreach (var id in ids)
+            {
+                var route = await _ctx.Routes
+                    .Where(r => r.RouteId == id)
+                    .Include(r=>r.Dots)
+                    .Include(r=>r.Lines)
+                    .Include(r=>r.Theme)
+                    .Include(r=>r.Season)
+                    .FirstOrDefaultAsync();
+                if (route is not null) routes.Add(route);
+            }
+
+            return routes;
+        }
+        public async Task<List<Route>> GetCreatedRoutes(User user)
+        {
+            return await _ctx.Routes.IgnoreAutoIncludes()
+                .Include(r => r.Creator)
+                .Where(r => r.Creator.Id == user.Id)
+                .Include(r=>r.Dots)
+                .Include(r=>r.Lines)
+                .ToListAsync();
+
         }
     }
 }

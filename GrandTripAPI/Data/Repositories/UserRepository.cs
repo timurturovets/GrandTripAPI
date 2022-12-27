@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -42,6 +43,17 @@ namespace GrandTripAPI.Data.Repositories
             return user.Id;
         }
 
+        public async Task Update(User user)
+        {
+            _ctx.Update(user);
+            await _ctx.SaveChangesAsync();
+        }
+        public async Task<List<User>> GetAll(bool includeRoutes = false)
+        {
+            return includeRoutes 
+                ? await _ctx.Users.Include(u=>u.CreatedRoutes).ToListAsync()
+                : await _ctx.Users.ToListAsync();
+        }
         public string GenerateToken(int id)
         {
             return _jwtService.GenerateToken(id);

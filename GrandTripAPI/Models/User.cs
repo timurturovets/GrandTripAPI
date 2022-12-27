@@ -8,6 +8,12 @@ namespace GrandTripAPI.Models
 {
     public class User
     {
+        public static readonly Dictionary<string, string> Roles = new()
+        {
+            { "Default", "Обычный пользователь" },
+            { "Editor", "Редактор" },
+            { "Admin", "Администратор" }
+        };
         public int Id { get; set; }
         public string Username { get; set; }
         public byte[] Salt { get; set; }
@@ -37,9 +43,11 @@ namespace GrandTripAPI.Models
             };
         }
 
+        
+        #nullable enable
         public UserInfo GetInfo()
         {
-            int[] Projecter(IEnumerable<Route> routes) => routes.Select(r => r.RouteId).ToArray();
+            int[]? Projecter(IEnumerable<Route>? routes) => routes?.Select(r => r.RouteId).ToArray();
 
             return new UserInfo(Id, Username, Role, 
                 Projecter(CreatedRoutes)
@@ -59,5 +67,6 @@ namespace GrandTripAPI.Models
     }
 
     public record UserInfo(int Id, string Username, string Role,
-        int[] CreatedRoutesIds); //, int[] FavouriteRoutesIds);
+        int[]? CreatedRoutesIds); //, int[] FavouriteRoutesIds);
+    #nullable disable
 }

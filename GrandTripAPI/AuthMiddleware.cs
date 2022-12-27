@@ -33,13 +33,4 @@ namespace GrandTripAPI
             await _next(context);
         }
     }
-
-    public static partial class Extensions
-    {
-        public static IApplicationBuilder UseAuthMiddleware(this IApplicationBuilder app)
-        {
-            app.UseMiddleware<AuthMiddleware>();
-            return app;
-        }
-    }
 }
