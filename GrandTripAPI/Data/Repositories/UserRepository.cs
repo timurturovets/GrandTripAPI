@@ -48,6 +48,12 @@ namespace GrandTripAPI.Data.Repositories
             _ctx.Update(user);
             await _ctx.SaveChangesAsync();
         }
+
+        public async Task Delete(User user)
+        {
+            _ctx.Remove(user);
+            await _ctx.SaveChangesAsync();
+        }
         public async Task<List<User>> GetAll(bool includeRoutes = false)
         {
             return includeRoutes 

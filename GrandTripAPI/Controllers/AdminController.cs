@@ -22,9 +22,8 @@ namespace GrandTripAPI.Controllers
         [HttpPost("changerole")]
         public async Task<IActionResult> ChangeUserRole(int userId, string role)
         {
-            var currentUser = await HttpContext.GetUser();
-            if (currentUser is null || currentUser.Role != "Admin") return BadRequest();
-
+            if(!await ValidateIdentity()) return BadRequest();
+            
             var l = HttpContext.L<AdminController>();
             l.LogCritical($"UserId: {userId}, role: {role}");
             var user = await _userRepo.GetBy(u => u.Id == userId);
@@ -39,8 +38,7 @@ namespace GrandTripAPI.Controllers
         [HttpPost("changeauthor")]
         public async Task<IActionResult> ChangeRouteAuthour([FromForm] int routeId, [FromForm] int authorId)
         {
-            var currentUser = await HttpContext.GetUser();
-            if (currentUser is null || currentUser.Role != "Admin") return BadRequest();
+            if(!await ValidateIdentity()) return BadRequest();
 
             var route = await _routeRepo.GetBy(r => r.RouteId == routeId);
             if (route is null) return NotFound();
@@ -52,6 +50,24 @@ namespace GrandTripAPI.Controllers
             
             await _routeRepo.UpdateRoute(route);
             return Ok();
+        }
+        
+        [HttpPost("deleteuser")]
+        public async Task<IActionResult> DeleteUser([FromForm] int userId)
+        {
+            if (!await ValidateIdentity()) return BadRequest();
+
+            var user = await _userRepo.GetBy(u => u.Id == userId);
+            if (user is null) return NotFound();
+
+            await _userRepo.Delete(user);
+            return Ok();
+        }
+
+        private async Task<bool> ValidateIdentity()
+        {
+            var currentUser = await HttpContext.GetUser();
+            return currentUser is not null && currentUser.Role == "Admin";
         }
     }
 }
