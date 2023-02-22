@@ -20,6 +20,7 @@ namespace GrandTripAPI.Controllers
         public string[]? Lines { get; set; }
         public string? Theme { get; set; }
         public string? Season { get; set; }
+        public string? City { get; set; }
 
         public async Task<RouteUpdateData> ToData(RouteRepository repo)
         {
@@ -36,7 +37,8 @@ namespace GrandTripAPI.Controllers
                     .Distinct(new DotsLinesComparer())
                     .Select(l => l.ToDomain()).ToList() ?? new List<Line>(),
                 Theme = await repo.GetTheme(Theme ?? "none"),
-                Season = await repo.GetSeason(Season ?? "none")
+                Season = await repo.GetSeason(Season ?? "none"),
+                City = City
             };
         }
 
@@ -49,7 +51,6 @@ namespace GrandTripAPI.Controllers
                        || d1?.Id == d2?.Id
                        || d1?.Name == d2?.Name;
             }
-
             public bool Equals(LineJson? l1, LineJson? l2) => l1?.Id == l2?.Id;
             public int GetHashCode(DotJson d) => d.Id.GetHashCode();
             public int GetHashCode(LineJson l) => l.Id.GetHashCode();

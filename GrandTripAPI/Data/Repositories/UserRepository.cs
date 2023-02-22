@@ -51,6 +51,10 @@ namespace GrandTripAPI.Data.Repositories
 
         public async Task Delete(User user)
         {
+            var routes = _ctx.Routes.Where(r => r.Creator.Id == user.Id);
+            var admin = await _ctx.Users.FirstAsync(u=>u.Role == "Admin");
+            await routes.ForEachAsync(r => { r.Creator = admin; });
+            _ctx.UpdateRange(routes);
             _ctx.Remove(user);
             await _ctx.SaveChangesAsync();
         }
@@ -60,9 +64,6 @@ namespace GrandTripAPI.Data.Repositories
                 ? await _ctx.Users.Include(u=>u.CreatedRoutes).ToListAsync()
                 : await _ctx.Users.ToListAsync();
         }
-        public string GenerateToken(int id)
-        {
-            return _jwtService.GenerateToken(id);
+        public string GenerateToken(int id) => _jwtService.GenerateToken(id);
         }
-    }
 }

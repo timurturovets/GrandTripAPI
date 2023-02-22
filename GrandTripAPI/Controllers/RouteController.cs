@@ -9,7 +9,6 @@ using Newtonsoft.Json;
 
 namespace GrandTripAPI.Controllers
 {
-    //[ApiController]
     [Route("api/[controller]")]
     public class RouteController : ControllerBase
     {
@@ -26,7 +25,6 @@ namespace GrandTripAPI.Controllers
         {
             var logger = HttpContext.L<RouteController>();
 
-            logger.LogInformation($"{data.RouteName}-{data.Dots?.Length}-{data.Lines?.Length}");
             var existingRoute = await _routeRepo.GetBy(r => r.RouteName == data.RouteName);
             if (existingRoute is not null) return BadRequest(new
             {
@@ -46,17 +44,15 @@ namespace GrandTripAPI.Controllers
             var user = await _userRepo.GetBy(u => u.Id == HttpContext.GetId());
             if (user is null) return BadRequest();
 
-            logger.LogCritical($"user: {user.Username ?? "Без имени"}");
             var route = Route.NewRoute(
                 data.RouteName, 
                 data.Description, 
                 dots, lines, 
-                theme, season, 
+                theme, season, data.City,
                 user);
 
             var id = await _routeRepo.AddRoute(route);
             var r = await _routeRepo.GetBy(x => x.RouteId == id);
-            logger.LogCritical($"added route: {r?.RouteName ?? "no"}");
             return Ok(id);
         }
 
@@ -64,12 +60,7 @@ namespace GrandTripAPI.Controllers
         public async Task<IActionResult> GetRoutes(GetRouteRequest filters)
         {
             var l = HttpContext.L<RouteController>();
-            l.LogCritical($"Theme: 1{filters.Theme}1, season: 1{filters.Season}1");
             var routes = await _routeRepo.GetAll(filters.Theme, filters.Season);
-            foreach (var route in routes.Where(route => route.Theme == null || route.Season == null))
-            {
-                l.LogCritical($"null at {route.RouteName}");
-            }
             return Ok(new { routes = routes.Select(r=>r.ToJson()) });
         }
 
@@ -91,7 +82,6 @@ namespace GrandTripAPI.Controllers
     
             var updateData = await request.ToData(_routeRepo);
             var l = HttpContext.L<RouteController>();
-            l.LogCritical($"Lines length: {updateData.Lines.Count}");
             route.Update(updateData);
             
             await _routeRepo.UpdateRoute(route, true);

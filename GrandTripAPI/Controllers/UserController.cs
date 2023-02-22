@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 using GrandTripAPI.Data.Repositories;
-using Microsoft.Extensions.Logging;
 
 namespace GrandTripAPI.Controllers
 {
@@ -32,8 +31,6 @@ namespace GrandTripAPI.Controllers
         public async Task<IActionResult> Login(SigningRequest data)
         {
             var l = HttpContext.L<UserController>();
-
-            l.LogCritical($"req name: {data.Username}, pw: {data.Password}");
             
             var user = await _userRepo.GetBy(u => u.Username == data.Username);
             

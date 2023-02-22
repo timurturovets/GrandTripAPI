@@ -25,7 +25,6 @@ namespace GrandTripAPI.Controllers
             if(!await ValidateIdentity()) return BadRequest();
             
             var l = HttpContext.L<AdminController>();
-            l.LogCritical($"UserId: {userId}, role: {role}");
             var user = await _userRepo.GetBy(u => u.Id == userId);
             if (user is null) return BadRequest();
             

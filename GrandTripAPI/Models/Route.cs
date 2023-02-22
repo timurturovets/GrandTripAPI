@@ -15,6 +15,8 @@ namespace GrandTripAPI.Models
         public IEnumerable<Line> Lines { get; set; } = new List<Line>();
         public RouteTheme Theme { get; set; }
         public RouteSeason Season { get; set; }
+        public string City { get; set; }
+
         public User Creator { get; set; }
         //public IEnumerable<User> Preferers { get; set; }
 
@@ -22,7 +24,7 @@ namespace GrandTripAPI.Models
 
         public static Route NewRoute(string name, string description,
             IEnumerable<Dot> dots, IEnumerable<Line> lines, 
-            RouteTheme theme, RouteSeason season,
+            RouteTheme theme, RouteSeason season, string city,
             User creator)
         {
             return new Route
@@ -33,6 +35,7 @@ namespace GrandTripAPI.Models
                 Lines = lines,
                 Theme = theme,
                 Season = season,
+                City = city,
                 Creator = creator
             };
         }
