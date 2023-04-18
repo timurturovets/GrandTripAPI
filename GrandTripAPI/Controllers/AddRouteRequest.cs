@@ -14,6 +14,7 @@ namespace GrandTripAPI.Controllers
         public string Theme { get; set; } = "none";
         public string Season { get; set; } = "none";
         public string City { get; set; } = "Санкт-Петербург";
+        public string Duration { get; set; } = "none";
         public string[]? Dots { get; set; }
         public string[]? Lines { get; set; }
 

@@ -14,5 +14,6 @@ namespace GrandTripAPI.Controllers
         public RouteTheme Theme { get; set; }
         public RouteSeason Season { get; set; }
         public string City { get; set; }
+        public string Duration { get; set; }
     }
 }

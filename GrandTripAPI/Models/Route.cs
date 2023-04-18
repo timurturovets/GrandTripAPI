@@ -16,7 +16,7 @@ namespace GrandTripAPI.Models
         public RouteTheme Theme { get; set; }
         public RouteSeason Season { get; set; }
         public string City { get; set; }
-
+        public string Duration {get;set;}
         public User Creator { get; set; }
         //public IEnumerable<User> Preferers { get; set; }
 
@@ -24,7 +24,7 @@ namespace GrandTripAPI.Models
 
         public static Route NewRoute(string name, string description,
             IEnumerable<Dot> dots, IEnumerable<Line> lines, 
-            RouteTheme theme, RouteSeason season, string city,
+            RouteTheme theme, RouteSeason season, string city, string duration,
             User creator)
         {
             return new Route
@@ -36,6 +36,7 @@ namespace GrandTripAPI.Models
                 Theme = theme,
                 Season = season,
                 City = city,
+                Duration = duration,
                 Creator = creator
             };
         }
@@ -48,6 +49,8 @@ namespace GrandTripAPI.Models
             Lines = data.Lines;
             Theme = data.Theme;
             Season = data.Season;
+            City = data.City;
+            Duration = data.Duration;
         }
 
         public RouteJson ToJson()
@@ -59,6 +62,8 @@ namespace GrandTripAPI.Models
                 Description = Description,
                 Theme = Theme?.Name ?? "Без тематики",
                 Season = Season?.Name ?? "Все сезоны",
+                City = City ?? "spb",
+                Duration = Duration ?? "none",
                 Dots = Dots.Select(d => d.ToJson()).ToList(),
                 Lines = Lines.Select(l=>l.ToJson()).ToList(),
                 Author = Creator.Username

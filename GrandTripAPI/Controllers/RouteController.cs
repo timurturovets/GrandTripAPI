@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 
 using GrandTripAPI.Data.Repositories;
 using GrandTripAPI.Models;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace GrandTripAPI.Controllers
@@ -23,8 +22,6 @@ namespace GrandTripAPI.Controllers
         [HttpPost("add")]
         public async Task<IActionResult> AddRoute([FromForm] AddRouteRequest data)
         {
-            var logger = HttpContext.L<RouteController>();
-
             var existingRoute = await _routeRepo.GetBy(r => r.RouteName == data.RouteName);
             if (existingRoute is not null) return BadRequest(new
             {
@@ -48,19 +45,17 @@ namespace GrandTripAPI.Controllers
                 data.RouteName, 
                 data.Description, 
                 dots, lines, 
-                theme, season, data.City,
+                theme, season, data.City, data.Duration,
                 user);
 
             var id = await _routeRepo.AddRoute(route);
-            var r = await _routeRepo.GetBy(x => x.RouteId == id);
             return Ok(id);
         }
 
         [HttpGet("getall")]
         public async Task<IActionResult> GetRoutes(GetRouteRequest filters)
         {
-            var l = HttpContext.L<RouteController>();
-            var routes = await _routeRepo.GetAll(filters.Theme, filters.Season);
+            var routes = await _routeRepo.GetAll(filters);
             return Ok(new { routes = routes.Select(r=>r.ToJson()) });
         }
 
@@ -81,7 +76,6 @@ namespace GrandTripAPI.Controllers
             if (route is null) return NotFound();
     
             var updateData = await request.ToData(_routeRepo);
-            var l = HttpContext.L<RouteController>();
             route.Update(updateData);
             
             await _routeRepo.UpdateRoute(route, true);
@@ -104,9 +98,7 @@ namespace GrandTripAPI.Controllers
         {
             var id = HttpContext.GetId();
             if (id is null) return BadRequest();
-
-            var l = HttpContext.L<RouteController>();
-
+            
             var user = await _userRepo.GetBy(u=>u.Id== id);
             if (user is null) return BadRequest();
 

@@ -21,6 +21,7 @@ namespace GrandTripAPI.Controllers
         public string? Theme { get; set; }
         public string? Season { get; set; }
         public string? City { get; set; }
+        public string? Duration { get; set; }
 
         public async Task<RouteUpdateData> ToData(RouteRepository repo)
         {
@@ -38,6 +39,7 @@ namespace GrandTripAPI.Controllers
                     .Select(l => l.ToDomain()).ToList() ?? new List<Line>(),
                 Theme = await repo.GetTheme(Theme ?? "none"),
                 Season = await repo.GetSeason(Season ?? "none"),
+                Duration = Duration,
                 City = City
             };
         }
@@ -46,8 +48,8 @@ namespace GrandTripAPI.Controllers
         {
             public bool Equals(DotJson? d1, DotJson? d2)
             {
-                return d1 is null && d2 is not null
-                       || d2 is null && d1 is not null
+                return d1 is null && d2 is null
+                       || d2 is not null && d1 is not null
                        || d1?.Id == d2?.Id
                        || d1?.Name == d2?.Name;
             }

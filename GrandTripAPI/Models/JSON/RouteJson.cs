@@ -9,6 +9,8 @@ namespace GrandTripAPI.Models.JSON
         public string Description { get; set; }
         public string Theme { get; set; }
         public string Season { get; set; }
+        public string City { get; set; }
+        public string Duration { get; set; }
         public List<DotJson> Dots { get; set; }
         public List<LineJson> Lines { get; set; }
         public string Author { get; set; }

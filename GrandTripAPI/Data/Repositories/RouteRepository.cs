@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using GrandTripAPI.Controllers;
 using GrandTripAPI.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,33 +23,78 @@ namespace GrandTripAPI.Data.Repositories
             return await _ctx.Routes.FirstOrDefaultAsync(predicate);
         }
 
-        public async Task<List<Route?>> GetAll(string? theme = null, string? season = null)
+        public async Task<List<Route?>> GetAll(GetRouteRequest request)
         {
-            var set = _ctx.Routes;
+            string theme = request.Theme,
+                season = request.Season,
+                city = request.City,
+                duration = request.Duration;
+            
+            var set = _ctx.Routes.Where(r=>r.City == city);
+            
+            if (!string.IsNullOrEmpty(duration)) set = set.Where(r => r.Duration == duration);
+            if (!string.IsNullOrEmpty(theme)) set = set.Where(r => r.Theme.Key == theme);
+            if (!string.IsNullOrEmpty(season)) set = set.Where(r => r.Season.Key == season);
+            
+            return await set.Include(r => r.Dots).Include(r => r.Lines).ToListAsync();
+            
+            /*if (string.IsNullOrEmpty(duration))
+            {
+                if (string.IsNullOrEmpty(theme))
+                    return await set
+                        .Where(r => r.Season.Key == season)
+                        .Include(r => r.Dots)
+                        .Include(r => r.Lines)
+                        .ToListAsync();
 
-            if (string.IsNullOrEmpty(theme) && string.IsNullOrEmpty(season)) return await set
+                if (string.IsNullOrEmpty(season))
+                    return await set
+                        .Where(r => r.Theme.Key == theme)
+                        .Include(r => r.Dots)
+                        .Include(r => r.Lines)
+                        .ToListAsync();
+
+                return await set
+                    .Where(r => r.Theme.Key == theme && r.Season.Key == season)
+                    .Include(r => r.Dots)
+                    .Include(r => r.Lines)
+                    .ToListAsync();
+            }
+            
+            //--- --- --- --- ---
+            if (string.IsNullOrEmpty(theme)
+                && string.IsNullOrEmpty(season)
+                && string.IsNullOrEmpty(duration)) return await set
                     .Include(r => r.Dots)
                     .Include(r => r.Lines)
                     .ToListAsync();
                 
-            if (string.IsNullOrEmpty(theme)) return await set
+            if (string.IsNullOrEmpty(theme) && string.IsNullOrEmpty(duration)) return await set
                 .Where(r => r.Season.Key == season)
                 .Include(r => r.Dots)
                 .Include(r => r.Lines)
                 .ToListAsync();
 
-            if (string.IsNullOrEmpty(season))
+            if (string.IsNullOrEmpty(season) && string.IsNullOrEmpty(duration))
                 return await set
                     .Where(r => r.Theme.Key == theme)
                     .Include(r => r.Dots)
                     .Include(r => r.Lines)
                     .ToListAsync();
             
+            if (string.IsNullOrEmpty(theme) && string.IsNullOrEmpty(season))
+                    return await set
+                        .Where(r=>r.Duration == duration)
+                        .Include(r=>r.Dots)
+                        .Include(r => r.Lines)
+                        .ToListAsync();
+            
+            
             return await set
-                .Where(r => r.Theme.Key == theme && r.Season.Key == season)
-                .Include(r => r.Dots)
-                .Include(r => r.Lines)
-                .ToListAsync();
+            .Where(r => r.Theme.Key == theme && r.Season.Key == season)
+            .Include(r => r.Dots)
+            .Include(r => r.Lines)
+            .ToListAsync();*/
         }
         
         public async Task<Route?> GetByWith(Expression<Func<Route, bool>> predicate, 
